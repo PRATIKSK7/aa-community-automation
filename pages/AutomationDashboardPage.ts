@@ -12,14 +12,9 @@ export class AutomationDashboardPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    // TODO: verify selector for the Automation link in the left nav
-    this.automationNavMenu = page.getByRole('link', { name: /automation/i });
-
-    // TODO: verify selector for the Create button/dropdown
-    this.createDropdown = page.getByRole('button', { name: /create/i });
-
-    // TODO: verify selector for the Form option inside the Create menu
-    this.createFormOption = page.getByRole('menuitem', { name: /form/i });
+    this.automationNavMenu = page.getByRole('link', { name: 'Automation', exact: true });
+    this.createDropdown = page.getByRole('button', { name: 'Create', exact: true });
+    this.createFormOption = page.getByRole('button', { name: /Form/i });
   }
 
   /**

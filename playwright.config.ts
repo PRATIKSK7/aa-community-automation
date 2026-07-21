@@ -6,8 +6,8 @@ dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
-  /* Maximum time one test can run for. Set to 60s for form/file-upload flows */
-  timeout: 60 * 1000,
+  /* Maximum time one test can run for. Set to 120s for cloud form/file-upload flows */
+  timeout: 120 * 1000,
   expect: {
     timeout: 5000
   },

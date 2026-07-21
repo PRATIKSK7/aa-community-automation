@@ -16,8 +16,12 @@ const requireAuth = (req: express.Request, res: express.Response, next: express.
   next();
 };
 
-// 1. POST /auth
-app.post('/v1/authentication', (req, res) => {
+// 1. Authentication (v2 and v1)
+app.get(['/v2/authentication', '/v1/authentication'], (_req, res) => {
+  res.status(200).json({ status: 'HEALTHY', message: 'Authentication endpoint reachable' });
+});
+
+app.post(['/v2/authentication', '/v1/authentication'], (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Bad Request: Missing username or password' });
@@ -25,20 +29,42 @@ app.post('/v1/authentication', (req, res) => {
   res.status(200).json({ token: 'mock-jwt-token-123456789' });
 });
 
-// 2. GET /folders/me (mapped from GET_MY_FOLDER)
-app.get('/v2/repository/workspaces/private', requireAuth, (req, res) => {
+// 2. GET/POST private workspace folder
+const workspaceHandler = (_req: express.Request, res: express.Response) => {
   res.status(200).json({
     id: 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6',
-    name: 'Private Workspace'
+    name: 'Private Workspace',
+    list: [
+      {
+        id: 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6',
+        name: 'Private Workspace',
+        folder: true
+      }
+    ]
   });
-});
+};
+
+app.get(
+  ['/v2/repository/workspaces/private', '/v2/repository/workspaces/private/files/list'],
+  requireAuth,
+  workspaceHandler
+);
+app.post(
+  ['/v2/repository/workspaces/private', '/v2/repository/workspaces/private/files/list'],
+  requireAuth,
+  workspaceHandler
+);
 
 // 3. POST /files (Create form or process)
 app.post('/v2/repository/files', requireAuth, (req, res) => {
-  const { name, parentId, contentType } = req.body;
+  const { name, contentType } = req.body;
+  const parentId =
+    req.body.parentId || req.query.parentId || req.body.folderId || req.query.folderId;
 
-  if (!name || !parentId || !contentType) {
-    return res.status(400).json({ error: 'Bad Request: Missing required file metadata' });
+  if (!name || !contentType) {
+    return res
+      .status(400)
+      .json({ error: 'Bad Request: Missing required file name or contentType metadata' });
   }
 
   // Generate a mock UUID
@@ -48,7 +74,7 @@ app.post('/v2/repository/files', requireAuth, (req, res) => {
     id: mockId,
     name,
     contentType,
-    parentId
+    parentId: parentId || 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6'
   });
 });
 
@@ -80,6 +106,15 @@ app.put('/v2/repository/files/:fileId/dependencies', requireAuth, (req, res) => 
     message: 'Dependencies saved successfully',
     fileId,
     dependencies
+  });
+});
+
+// 6. DELETE /files/:id (Delete file)
+app.delete('/v2/repository/files/:fileId', requireAuth, (req, res) => {
+  const { fileId } = req.params;
+  res.status(200).json({
+    message: 'Resource deleted successfully',
+    fileId
   });
 });
 

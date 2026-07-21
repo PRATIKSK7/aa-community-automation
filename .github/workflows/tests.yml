@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run API tests
         env:
-          USE_MOCK_API: "true"
+          USE_MOCK_API: 'true'
         run: npm run test:api
 
       - name: Upload Playwright report

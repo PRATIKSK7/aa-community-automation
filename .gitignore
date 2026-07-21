@@ -1,10 +1,35 @@
+# Dependencies
 node_modules/
-.env
+.pnp
+.pnp.js
+
+# Testing
 playwright-report/
 test-results/
 coverage/
+screenshots/
+videos/
+logs/
+
+# Build and Temp
 dist/
+build/
+out/
+.cache/
+.temp/
+*.log
+debug/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs and OS
 .vscode/
 .idea/
 .DS_Store
-*.log
+*.swp
+*.swo

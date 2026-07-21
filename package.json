@@ -1,6 +1,7 @@
 {
   "name": "aa-community-automation",
   "version": "1.0.0",
+  "description": "Playwright automation framework implementing UI and API automation for the Automation Anywhere Community Challenge using TypeScript, REST APIs, and the Page Object Model.",
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
@@ -16,10 +17,20 @@
     "prepare": "husky",
     "test:unit": "vitest run tests/unit"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "typescript",
+    "automation-anywhere",
+    "automation",
+    "api-testing",
+    "ui-testing",
+    "page-object-model",
+    "rest-api",
+    "testing",
+    "qa"
+  ],
   "author": "",
-  "license": "ISC",
-  "description": "",
+  "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/cors": "^2.8.19",

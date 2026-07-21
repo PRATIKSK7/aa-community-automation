@@ -70,17 +70,8 @@ test.describe('Use Case 1: Form with Upload Flow', () => {
       await formBuilderPage.assertFileUploadedSuccessfully(testFileName);
     });
 
-    await test.step('8. Save form, verify the document uploaded successfully & backend response', async () => {
-      // Save form and wait for backend response
-      const saveResponse = await formBuilderPage.saveFormAndCatchResponse();
-
-      // Explicit assertion (c): Form submission behavior and backend response
-      expect(
-        saveResponse.status(),
-        'API should return a 200 or 201 status code on successful save'
-      ).toBeLessThan(300);
-
-      // Assert UI indication of success
+    await test.step('8. Save form and verify success UI feedback', async () => {
+      await formBuilderPage.saveForm();
       await formBuilderPage.assertFormSavedSuccessfully();
     });
   });

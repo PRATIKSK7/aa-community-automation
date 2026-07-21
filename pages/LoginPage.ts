@@ -17,11 +17,9 @@ export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    // TODO: verify selector for the email/username input
-    this.emailInput = page.getByLabel(/username|email/i);
+    this.emailInput = page.locator('input[name="username"]');
 
-    // TODO: verify selector for the password input
-    this.passwordInput = page.getByLabel(/password/i);
+    this.passwordInput = page.locator('input[name="password"]');
 
     // TODO: verify selector for the login button
     this.loginButton = page.getByRole('button', { name: /log in|login|sign in/i });
@@ -48,8 +46,9 @@ export class LoginPage extends BasePage {
    * Asserts that the login was successful by verifying a redirect to the dashboard or control room home.
    */
   async assertLoginSuccess(): Promise<void> {
-    // TODO: verify the dashboard URL pattern or a unique element on the control room home
-    await expect(this.page).toHaveURL(/.*dashboard|.*control-room/i);
+    await expect(this.page).toHaveURL(/.*#\/(home|index)|.*dashboard|.*control-room/i, {
+      timeout: 20000
+    });
   }
 
   /**

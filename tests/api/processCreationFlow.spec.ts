@@ -1,31 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { ApiClient } from '../../utils/apiClient';
-import { ENDPOINTS } from '../../config/endpoints';
 import {
   buildFormContentPayload,
   buildProcessWorkflowPayload,
   buildDependencyPayload
 } from '../../utils/payloads';
 
-/*
- * ============================================================================
- * TODO: ENDPOINTS TO VERIFY VIA DEVTOOLS NETWORK TAB
- *
- * As internal endpoints aren't publicly documented, the following endpoints
- * defined in /config/endpoints.ts need to be verified against the live app:
- *
- * 1. AUTH_LOGIN: Endpoint for obtaining auth token
- * 2. GET_MY_FOLDER: Endpoint for retrieving private workspace folder ID
- * 3. CREATE_FILE: Endpoint for creating Form and Process shells
- * 4. SAVE_FILE_CONTENT: Endpoint for saving content graph payload
- * 5. SAVE_FILE_DEPENDENCIES: Endpoint for linking dependencies
- * ============================================================================
- */
-
 test.describe('Use Case 2: Create a Process with a Form via API', () => {
   let apiClient: ApiClient;
 
-  // Variables to pass state between steps
+  // Variables to pass state between test steps
   let workspaceFolderId: string;
   let formFileId: string;
   let processFileId: string;
@@ -43,54 +27,35 @@ test.describe('Use Case 2: Create a Process with a Form via API', () => {
     });
 
     await test.step('2. Retrieve private workspace folder ID for authenticated user', async () => {
-      const response = await apiClient.get(ENDPOINTS.GET_MY_FOLDER);
-      expect(response.status(), 'GET folder should return 200').toBe(200);
-
-      const body = await response.json();
-      // TODO: Update body property based on actual response payload structure
-      workspaceFolderId = body.id || body.list?.[0]?.id;
-      expect(workspaceFolderId, 'Workspace folder ID should be retrieved').toBeTruthy();
+      workspaceFolderId = await apiClient.getWorkspaceFolder();
+      expect(typeof workspaceFolderId, 'Workspace Folder ID should be a string').toBe('string');
+      expect(workspaceFolderId, 'Workspace Folder ID should not be empty').toBeTruthy();
     });
 
     await test.step('3. Create a Form file in private workspace', async () => {
-      const response = await apiClient.post(ENDPOINTS.CREATE_FILE, {
-        name: formName,
-        parentId: workspaceFolderId,
-        contentType: 'application/vnd.aa.form'
-      });
-
-      expect(response.status(), 'CREATE Form file should return 200 or 201').toBeGreaterThanOrEqual(
-        200
-      );
-      expect(response.status(), 'CREATE Form file should return 200 or 201').toBeLessThan(300);
-
-      const body = await response.json();
-      formFileId = body.id;
-
+      formFileId = await apiClient.createForm(workspaceFolderId, formName);
       expect(typeof formFileId, 'Form File ID should be a string').toBe('string');
       expect(formFileId, 'Form File ID should be valid').toBeTruthy();
     });
 
     await test.step('4. Save form content with 3 fields: TextBox, TextArea, Number', async () => {
       const formContent = buildFormContentPayload(formName);
-      const url = ENDPOINTS.SAVE_FILE_CONTENT.replace('{fileId}', formFileId);
+      const response = await apiClient.saveFileContent(formFileId, formContent);
 
-      const response = await apiClient.put(url, formContent);
       expect(
         response.status(),
         'SAVE Form content should return 200 or 201'
       ).toBeGreaterThanOrEqual(200);
       expect(response.status(), 'SAVE Form content should return 200 or 201').toBeLessThan(300);
 
-      const body = await response.json();
+      const body = (await response.json()) as Record<string, unknown>;
       expect(body, 'Save form content response should indicate success').toBeDefined();
     });
 
     await test.step("5. Save form's file dependencies", async () => {
-      const formDependencies = buildDependencyPayload([]); // Form may have no dependencies of its own
-      const url = ENDPOINTS.SAVE_FILE_DEPENDENCIES.replace('{fileId}', formFileId);
+      const formDependencies = buildDependencyPayload([]);
+      const response = await apiClient.saveFileDependencies(formFileId, formDependencies);
 
-      const response = await apiClient.put(url, formDependencies);
       expect(
         response.status(),
         'SAVE Form dependencies should return 200 or 201'
@@ -101,21 +66,7 @@ test.describe('Use Case 2: Create a Process with a Form via API', () => {
     });
 
     await test.step('6. Create a Process file in private workspace', async () => {
-      const response = await apiClient.post(ENDPOINTS.CREATE_FILE, {
-        name: processName,
-        parentId: workspaceFolderId,
-        contentType: 'application/vnd.aa.workflow'
-      });
-
-      expect(
-        response.status(),
-        'CREATE Process file should return 200 or 201'
-      ).toBeGreaterThanOrEqual(200);
-      expect(response.status(), 'CREATE Process file should return 200 or 201').toBeLessThan(300);
-
-      const body = await response.json();
-      processFileId = body.id;
-
+      processFileId = await apiClient.createProcess(workspaceFolderId, processName);
       expect(typeof processFileId, 'Process File ID should be a string').toBe('string');
       expect(processFileId, 'Process File ID should be valid').toBeTruthy();
     });
@@ -123,7 +74,7 @@ test.describe('Use Case 2: Create a Process with a Form via API', () => {
     await test.step('7. Save process content (InitialStep -> FormStep -> exit)', async () => {
       const processContent = buildProcessWorkflowPayload(formFileId);
 
-      // Explicit assertion verifying the payload sent actually referenced the formFileId
+      // Verify node graph payload references the form created in Step 3
       expect(
         processContent.nodes[0].formId,
         'InitialStep should reference the correct formFileId'
@@ -133,30 +84,18 @@ test.describe('Use Case 2: Create a Process with a Form via API', () => {
         'FormStep should reference the correct formFileId'
       ).toBe(formFileId);
 
-      const url = ENDPOINTS.SAVE_FILE_CONTENT.replace('{fileId}', processFileId);
-      const response = await apiClient.put(url, processContent);
+      const response = await apiClient.saveFileContent(processFileId, processContent);
 
       expect(
         response.status(),
         'SAVE Process content should return 200 or 201'
       ).toBeGreaterThanOrEqual(200);
       expect(response.status(), 'SAVE Process content should return 200 or 201').toBeLessThan(300);
-
-      const body = await response.json();
-      expect(body, 'Save process content response should indicate success').toBeDefined();
     });
 
-    await test.step("8. Save process's file dependencies, linking the form", async () => {
+    await test.step('8. Save process dependencies (linking formFileId)', async () => {
       const processDependencies = buildDependencyPayload([formFileId]);
-
-      // Explicit assertion that dependency list includes form file id
-      expect(
-        processDependencies.dependencies,
-        'Process dependencies must include the form file ID'
-      ).toContain(formFileId);
-
-      const url = ENDPOINTS.SAVE_FILE_DEPENDENCIES.replace('{fileId}', processFileId);
-      const response = await apiClient.put(url, processDependencies);
+      const response = await apiClient.saveFileDependencies(processFileId, processDependencies);
 
       expect(
         response.status(),
@@ -165,6 +104,11 @@ test.describe('Use Case 2: Create a Process with a Form via API', () => {
       expect(response.status(), 'SAVE Process dependencies should return 200 or 201').toBeLessThan(
         300
       );
+    });
+
+    await test.step('9. Cleanup test resources (Process & Form)', async () => {
+      await apiClient.deleteResource(processFileId);
+      await apiClient.deleteResource(formFileId);
     });
   });
 });

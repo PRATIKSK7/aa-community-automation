@@ -3,18 +3,32 @@ dotenv.config();
 
 const isMockMode = process.env.USE_MOCK_API === 'true';
 
-export const API_BASE_URL = isMockMode
-  ? 'http://localhost:4000'
-  : process.env.AA_BASE_URL || 'https://my-live-control-room.com';
+/**
+ * Centralized API Configuration & Base URL
+ * Cleans trailing slashes to prevent fragile URL concatenation errors.
+ */
+export const BASE_URL = (
+  isMockMode
+    ? 'http://localhost:4000'
+    : process.env.AA_BASE_URL || 'https://community.cloud.automationanywhere.digital'
+).replace(/\/+$/, '');
+
+export const API_VERSION_V1 = 'v1';
+export const API_VERSION_V2 = 'v2';
 
 /**
- * API Endpoint Constants
- * TODO: Verify these exact paths by inspecting the Network tab in DevTools when using the live application.
+ * Automation Anywhere A360 Authentication Endpoint (v2)
+ */
+export const AUTH_ENDPOINT = `${BASE_URL}/${API_VERSION_V2}/authentication`;
+
+/**
+ * Centralized API Endpoint Registry
  */
 export const ENDPOINTS = {
-  AUTH_LOGIN: `${API_BASE_URL}/v1/authentication`,
-  GET_MY_FOLDER: `${API_BASE_URL}/v2/repository/workspaces/private`,
-  CREATE_FILE: `${API_BASE_URL}/v2/repository/files`,
-  SAVE_FILE_CONTENT: `${API_BASE_URL}/v2/repository/files/{fileId}/content`,
-  SAVE_FILE_DEPENDENCIES: `${API_BASE_URL}/v2/repository/files/{fileId}/dependencies`
-};
+  AUTH_LOGIN: AUTH_ENDPOINT,
+  GET_MY_FOLDER: `${BASE_URL}/${API_VERSION_V2}/repository/workspaces/private/files/list`,
+  CREATE_FILE: `${BASE_URL}/${API_VERSION_V2}/repository/files`,
+  SAVE_FILE_CONTENT: `${BASE_URL}/${API_VERSION_V2}/repository/files/{fileId}/content`,
+  SAVE_FILE_DEPENDENCIES: `${BASE_URL}/${API_VERSION_V2}/repository/files/{fileId}/dependencies`,
+  DELETE_FILE: `${BASE_URL}/${API_VERSION_V2}/repository/files/{fileId}`
+} as const;

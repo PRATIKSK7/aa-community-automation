@@ -7,59 +7,68 @@ on:
     branches: [main]
 
 jobs:
-  unit-tests:
-    name: Unit Tests
+  ci-pipeline:
+    name: CI Pipeline (Mocked)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Run npm ci
         run: npm ci
 
-      - name: Run Unit Tests
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run test:unit
         run: npm run test:unit
 
-  api-tests:
-    name: API Tests (Mocked)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright Browsers
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Lint and Typecheck
-        run: |
-          npm run typecheck
-          npm run lint
+      - name: Start mock server
+        run: npm run mock-server > mock-server.log 2>&1 &
 
-      - name: Run API tests against Mock Server
-        run: |
-          npm run mock-server &
-          npx wait-on http://localhost:4000
-          USE_MOCK_API=true npm run test:api
+      - name: Wait until localhost:4000 is ready
+        run: npx wait-on http://localhost:4000 || (cat mock-server.log && exit 1)
 
-      - name: Upload Test Report
+      - name: Run API tests
+        env:
+          USE_MOCK_API: "true"
+        run: npm run test:api
+
+      - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-api-report
+          name: playwright-report
           path: playwright-report/
+          retention-days: 30
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+      - name: Upload Mock Server Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mock-server-log
+          path: mock-server.log
           retention-days: 30
 
   # ============================================================================
@@ -74,7 +83,8 @@ jobs:
   # ui-tests:
   #   name: UI Tests (Live)
   #   runs-on: ubuntu-latest
-  #   needs: api-tests
+  #   needs: ci-pipeline
+  #   timeout-minutes: 30
   #   steps:
   #     - uses: actions/checkout@v4
   #
@@ -97,7 +107,7 @@ jobs:
   #         AA_BASE_URL: ${{ secrets.AA_BASE_URL }}
   #       run: npm run test:ui
   #
-  #     - name: Upload Test Report
+  #     - name: Upload Playwright report
   #       if: always()
   #       uses: actions/upload-artifact@v4
   #       with:

@@ -1,0 +1,2 @@
+This is a sample text file used for automation testing.
+It needs to be replaced with a real file when running tests against the live app.

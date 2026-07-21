@@ -1,0 +1,37 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/strict"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-non-null-assertion": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["tests/ui/**/*.ts", "tests/api/**/*.ts"],
+      "plugins": ["playwright"],
+      "extends": ["plugin:playwright/recommended"]
+    },
+    {
+      "files": ["tests/unit/**/*.ts"],
+      "plugins": ["vitest"],
+      "rules": {
+        "vitest/expect-expect": "warn"
+      }
+    }
+  ],
+  "ignorePatterns": ["node_modules/", "playwright-report/", "test-results/", "mock-server/"]
+}

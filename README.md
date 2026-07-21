@@ -11,15 +11,14 @@
     <strong>Enterprise Playwright UI & API Automation Framework.</strong>
   </p>
 
-  <p>
-    [![Playwright](https://img.shields.io/badge/-Playwright-45ba4b?style=for-the-badge&logo=playwright&logoColor=white)](#)
-    [![TypeScript](https://img.shields.io/badge/-TypeScript-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](#)
-    [![Node.js](https://img.shields.io/badge/-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](#)
-    [![Automation Anywhere](https://img.shields.io/badge/Automation_Anywhere-FF6C37?style=for-the-badge&logo=automationanywhere&logoColor=white)](#)
-    [![REST API](https://img.shields.io/badge/REST_API-005571?style=for-the-badge&logo=json&logoColor=white)](#)
-    [![Page Object Model](https://img.shields.io/badge/Page_Object_Model-8A2BE2?style=for-the-badge)](#)
-    [![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](#)
-  </p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Playwright-45BA4B?style=for-the-badge&logo=playwright&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/REST_API-005571?style=for-the-badge&logo=json&logoColor=white" />
+  <img src="https://img.shields.io/badge/Page_Object_Model-8A2BE2?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" />
+</p>
 
   <p>
     <a href="#-what-youll-find-in-this-repository">Overview</a> •

@@ -24,8 +24,6 @@
   <p>
     <a href="#-what-youll-find-in-this-repository">Overview</a> •
     <a href="#-project-showcase">Features</a> •
-    <a href="#-live-demo">Demo</a> •
-    <a href="#-professional-screenshot-gallery">Screenshots</a> •
     <a href="#-architecture">Architecture</a> •
     <a href="#-getting-started">Installation</a> •
     <a href="#-implemented-use-cases">Usage</a> •
@@ -41,19 +39,6 @@
 | Current Version | Release Status | Last Updated |      Compatibility      |   Node Version    | Playwright Version |
 | :-------------: | :------------: | :----------: | :---------------------: | :---------------: | :----------------: |
 |    `v1.0.0`     |   **Stable**   |   2026-07    | macOS / Linux / Windows | `v18.x` / `v20.x` |     `^1.61.0`      |
-
----
-
-## 🎥 Live Demo
-
-> The animation below demonstrates the complete UI automation workflow.
-
-<div align="center">
-  <img src="assets/demo.gif" alt="Demo GIF - Login -> Navigate -> Create Form -> Upload File -> Save -> Playwright Pass" width="80%" />
-  <p><i>Figure 1 — End-to-end execution of the hybrid UI and API testing suite.</i></p>
-</div>
-
-<p align="right"><a href="#readme-top">⬆️ Back to Top</a></p>
 
 ---
 
@@ -109,7 +94,7 @@ This repository is engineered to validate the Automation Anywhere Community Clou
 
 <div align="center">
   <img src="assets/architecture.png" alt="Framework Architecture Graphic" width="80%" />
-  <p><i>Figure 2 — Enterprise Framework Architecture.</i></p>
+  <p><i>Figure 1 — Enterprise Framework Architecture.</i></p>
 </div>
 
 ```mermaid
@@ -150,7 +135,7 @@ graph TD
 
 <div align="center">
   <img src="assets/workflow.png" alt="Execution Flow Graphic" width="80%" />
-  <p><i>Figure 3 — End-to-End Test Execution Lifecycle.</i></p>
+  <p><i>Figure 2 — End-to-End Test Execution Lifecycle.</i></p>
 </div>
 
 ```mermaid
@@ -174,7 +159,7 @@ flowchart LR
 
 <div align="center">
   <img src="assets/folder-structure.png" alt="Directory Structure Layout" width="60%" />
-  <p><i>Figure 4 — Repository project structure viewed in an IDE.</i></p>
+  <p><i>Figure 3 — Repository project structure viewed in an IDE.</i></p>
 </div>
 
 ```text
@@ -216,32 +201,12 @@ This repository adheres to strict software engineering standards to ensure long-
 
 ---
 
-## 📷 Professional Screenshot Gallery
-
-> The screenshots below demonstrate the visual output of the automation framework interacting with systems, CI pipelines, and reporting tools.
-
-|                                                            Dashboard                                                            |                                                             Form Builder                                                             |
-| :-----------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="assets/dashboard.png" alt="Automation Dashboard"/> <br> <i>Figure 5 — Automation Anywhere control room dashboard.</i> | <img src="assets/form-builder.png" alt="Form Builder Canvas"/> <br> <i>Figure 6 — Form Builder after successful UI interactions.</i> |
-
-|                                                   Execution Report                                                   |                                                              GitHub Actions                                                               |
-| :------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="assets/playwright-report.png" alt="HTML Report"/> <br> <i>Figure 7 — Playwright HTML execution report.</i> | <img src="assets/github-actions.png" alt="GitHub Actions Pipeline"/> <br> <i>Figure 8 — GitHub Actions pipeline passing successfully.</i> |
-
-|                                                      Terminal                                                       |                                                       Repository                                                        |
-| :-----------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
-| <img src="assets/terminal.png" alt="Terminal Output"/> <br> <i>Figure 9 — Terminal output during CLI execution.</i> | <img src="assets/repository.png" alt="GitHub Repository"/> <br> <i>Figure 10 — The source code repository homepage.</i> |
-
-<p align="right"><a href="#readme-top">⬆️ Back to Top</a></p>
-
----
-
 ## 🚀 Getting Started
 
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/aa-community-automation.git
+git clone https://github.com/PRATIKSK7/aa-community-automation.git
 cd aa-community-automation
 npm install
 npx playwright install --with-deps
@@ -337,35 +302,6 @@ npx playwright show-report
 
 ---
 
-## 🎥 Media Creation Guide
-
-### How to Capture the Demo GIF
-
-> We recommend using **OBS Studio** or **Screen Studio (Mac)**.
-
-1. Start recording as the browser launches (`npm run test:ui`).
-2. Capture the login flow, form creation, drag-and-drop actions, and the success toast.
-3. Capture the terminal showing the successful test output.
-4. Capture the HTML Report opening.
-5. Export as `demo.gif` and place it in the `assets/` folder.
-
-### Screenshot Checklist
-
-Ensure images are placed in the `assets/` directory to populate the repository automatically:
-
-- [ ] Repository homepage
-- [ ] Folder structure
-- [ ] Automation Anywhere dashboard
-- [ ] Form Builder
-- [ ] Playwright HTML report
-- [ ] GitHub Actions passing
-- [ ] Terminal output
-- [ ] Test results
-
-<p align="right"><a href="#readme-top">⬆️ Back to Top</a></p>
-
----
-
 ## 📈 Repository Timeline
 
 ```mermaid
@@ -413,12 +349,10 @@ Contributions are welcome.
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Pratik S Kanoj**
 
-- **GitHub:** [your-username](https://github.com/your-username)
-- **LinkedIn:** [your-profile](https://linkedin.com/in/your-profile)
-- **Portfolio:** [your-website.com](https://your-website.com)
-- **Email:** your.email@example.com
+- **GitHub:** [PRATIKSK7](https://github.com/PRATIKSK7)
+- **LinkedIn:** [pratik-s-kanoj-a81432300](https://www.linkedin.com/in/pratik-s-kanoj-a81432300/)
 
 <p align="right"><a href="#readme-top">⬆️ Back to Top</a></p>
 
@@ -433,6 +367,6 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 <div align="center">
   <p><strong>Built with Playwright + TypeScript</strong></p>
   <p><i>Designed for maintainable UI & API automation.</i></p>
-  <p>© 2026 Author Name</p>
+  <p>© 2026 Pratik S Kanoj</p>
   <p><a href="#readme-top">Back to Top</a></p>
 </div>

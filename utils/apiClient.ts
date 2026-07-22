@@ -1,4 +1,5 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
+import { chromium } from 'playwright';
 import { BASE_URL, AUTH_ENDPOINT, ENDPOINTS } from '../config/endpoints';
 
 /**
@@ -193,8 +194,8 @@ Possible Fix: Ensure Control Room backend service is running and reachable.\n`);
       return this.token;
     }
 
-    const user = (username || process.env.AA_USERNAME || '').trim();
-    const pass = (password || process.env.AA_PASSWORD || '').trim();
+    const user = username || process.env.AA_USERNAME || '';
+    const pass = password || process.env.AA_PASSWORD || '';
 
     if (!user || !pass) {
       throw new Error('❌ Username or password not provided for API auth.');
@@ -205,12 +206,60 @@ Possible Fix: Ensure Control Room backend service is running and reachable.\n`);
     // Strategy 1: Attempt standard local login (Password)
     let response = await this.post(AUTH_ENDPOINT, { username: user, password: pass });
 
-    // Strategy 2: If SSO is enabled or an API Key was provided in the password field
+    // Strategy 2: If an API Key was provided in the password field (Enterprise compatibility)
     if (!response.ok()) {
-      console.log('⚠️ Password Auth Failed. Attempting API Key Auth for SSO compatibility...');
+      console.log('⚠️ Password Auth Failed. Attempting API Key Auth...');
       const apiKeyResponse = await this.post(AUTH_ENDPOINT, { username: user, apiKey: pass });
       if (apiKeyResponse.ok()) {
         response = apiKeyResponse;
+      }
+    }
+
+    // Strategy 3: Headless UI Fallback to bypass `publicKeyExchange` encryption enforcement
+    if (!response.ok()) {
+      console.log(
+        '⚠️ API Key Auth Failed. Attempting Headless UI Login Fallback to extract JWT...'
+      );
+      try {
+        const browser = await chromium.launch({ headless: true });
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        let extractedToken = '';
+        page.on('response', async (res) => {
+          if (res.url().includes('v2/authentication') && res.request().method() === 'POST') {
+            try {
+              const body = await res.json();
+              if (body.token) extractedToken = body.token;
+            } catch {
+              // Ignore JSON parse errors from non-JSON responses
+            }
+          }
+        });
+
+        await page.goto(
+          process.env.AA_BASE_URL || 'https://community.cloud.automationanywhere.digital/'
+        );
+        await page.waitForSelector('input[name="username"], input[type="email"], #username', {
+          timeout: 15000
+        });
+        await page.fill('input[name="username"], input[type="email"], #username', user);
+        await page.fill('input[name="password"], input[type="password"], #password', pass);
+        await page.click('button[type="submit"], #login-button');
+
+        for (let i = 0; i < 20; i++) {
+          if (extractedToken) break;
+          await new Promise((r) => setTimeout(r, 500));
+        }
+        await browser.close();
+
+        if (extractedToken) {
+          console.log('✅ UI Login Fallback successful. Token extracted.');
+          this.token = extractedToken;
+          return this.token;
+        }
+      } catch (e) {
+        console.error('UI Fallback also failed:', (e as Error).message);
       }
     }
 
@@ -224,7 +273,7 @@ Possible Fix: Ensure Control Room backend service is running and reachable.\n`);
       console.error(`Response Body: ${resText}`);
       console.error('------------------------------------------');
       throw new Error(
-        `❌ Authentication Failed\nSuggested Cause: Check credentials (ensure API Key is used if SSO is enabled) or Control Room identity provider status.`
+        `❌ Authentication Failed\nSuggested Cause: Check credentials (password/username) or ensure correct environment variables are set in GitHub Actions.`
       );
     }
 

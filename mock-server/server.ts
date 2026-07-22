@@ -16,6 +16,11 @@ const requireAuth = (req: express.Request, res: express.Response, next: express.
   next();
 };
 
+// Root health check for wait-on
+app.get('/', (_req, res) => {
+  res.status(200).send('OK');
+});
+
 // 1. Authentication (v2 and v1)
 app.get(['/v2/authentication', '/v1/authentication'], (_req, res) => {
   res.status(200).json({ status: 'HEALTHY', message: 'Authentication endpoint reachable' });

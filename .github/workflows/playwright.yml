@@ -12,26 +12,43 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 22
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Validate Secrets
+        env:
+          AA_USERNAME: ${{ secrets.AA_USERNAME }}
+          AA_PASSWORD: ${{ secrets.AA_PASSWORD }}
+          AA_BASE_URL: ${{ secrets.AA_BASE_URL }}
+        run: |
+          MISSING=""
+          if [ -z "$AA_USERNAME" ]; then MISSING="$MISSING AA_USERNAME"; fi
+          if [ -z "$AA_PASSWORD" ]; then MISSING="$MISSING AA_PASSWORD"; fi
+          if [ -z "$AA_BASE_URL" ]; then MISSING="$MISSING AA_BASE_URL"; fi
+          
+          if [ -n "$MISSING" ]; then
+            echo "::warning::Missing required secrets:$MISSING. Skipping live API/UI tests gracefully."
+            echo "SKIP_TESTS=true" >> $GITHUB_ENV
+          else
+            echo "SKIP_TESTS=false" >> $GITHUB_ENV
+          fi
       - name: Run API Tests
+        if: env.SKIP_TESTS == 'false'
         run: npm run test:api
         env:
           AA_USERNAME: ${{ secrets.AA_USERNAME }}
           AA_PASSWORD: ${{ secrets.AA_PASSWORD }}
           AA_BASE_URL: ${{ secrets.AA_BASE_URL }}
-          AA_API_URL: ${{ secrets.AA_API_URL }}
           USE_MOCK_API: false
       - name: Run UI Tests
+        if: env.SKIP_TESTS == 'false'
         run: npm run test:ui
         env:
           AA_USERNAME: ${{ secrets.AA_USERNAME }}
           AA_PASSWORD: ${{ secrets.AA_PASSWORD }}
           AA_BASE_URL: ${{ secrets.AA_BASE_URL }}
-          AA_API_URL: ${{ secrets.AA_API_URL }}
           USE_MOCK_API: false
       - uses: actions/upload-artifact@v4
         if: always()

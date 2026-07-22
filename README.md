@@ -231,6 +231,17 @@ AA_API_URL=https://community.cloud.automationanywhere.digital
 USE_MOCK_API=false
 ```
 
+### GitHub Actions Secrets
+
+For the CI pipeline to run live API and UI tests, the following secrets must be configured in your repository:
+
+- `AA_BASE_URL`
+- `AA_USERNAME`
+- `AA_PASSWORD`
+
+These must be configured under:
+**GitHub Repository > Settings > Secrets and Variables > Actions**
+
 ### Running Tests
 
 ```bash

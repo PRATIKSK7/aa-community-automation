@@ -181,13 +181,20 @@ Possible Fix: Ensure Control Room backend service is running and reachable.\n`);
   async authenticate(username?: string, password?: string): Promise<string> {
     this.validateEnvironment();
 
+    console.log('--- Authentication Diagnostics ---');
+    console.log(`AA_BASE_URL = ${process.env.AA_BASE_URL ? 'SET' : 'NOT SET'}`);
+    console.log(`AA_API_URL = ${process.env.AA_API_URL ? 'SET' : 'NOT SET'}`);
+    console.log(`AA_USERNAME = ${process.env.AA_USERNAME ? 'SET' : 'NOT SET'}`);
+    console.log(`AA_PASSWORD = ${process.env.AA_PASSWORD ? 'SET' : 'NOT SET'}`);
+    console.log('----------------------------------');
+
     if (process.env.USE_MOCK_API === 'true') {
       this.token = 'mock-jwt-token-123456789';
       return this.token;
     }
 
-    const user = username || process.env.AA_USERNAME;
-    const pass = password || process.env.AA_PASSWORD;
+    const user = (username || process.env.AA_USERNAME || '').trim();
+    const pass = (password || process.env.AA_PASSWORD || '').trim();
 
     if (!user || !pass) {
       throw new Error('❌ Username or password not provided for API auth.');
@@ -195,12 +202,29 @@ Possible Fix: Ensure Control Room backend service is running and reachable.\n`);
 
     await this.validateEndpointHealth();
 
-    const response = await this.post(AUTH_ENDPOINT, { username: user, password: pass });
+    // Strategy 1: Attempt standard local login (Password)
+    let response = await this.post(AUTH_ENDPOINT, { username: user, password: pass });
+
+    // Strategy 2: If SSO is enabled or an API Key was provided in the password field
+    if (!response.ok()) {
+      console.log('⚠️ Password Auth Failed. Attempting API Key Auth for SSO compatibility...');
+      const apiKeyResponse = await this.post(AUTH_ENDPOINT, { username: user, apiKey: pass });
+      if (apiKeyResponse.ok()) {
+        response = apiKeyResponse;
+      }
+    }
 
     if (!response.ok()) {
       const resText = await response.text().catch(() => '');
+      console.error('--- Authentication Failure Diagnostics ---');
+      console.error(`Endpoint: ${AUTH_ENDPOINT}`);
+      console.error(`Status: ${response.status()}`);
+      console.error(`Status Text: ${response.statusText()}`);
+      console.error(`Headers: ${JSON.stringify(response.headers(), null, 2)}`);
+      console.error(`Response Body: ${resText}`);
+      console.error('------------------------------------------');
       throw new Error(
-        `❌ Authentication Failed\nURL: ${AUTH_ENDPOINT}\nMETHOD: POST\nExpected: 200 OK\nReceived: ${response.status()} ${response.statusText()}\nResponse Body: ${resText}\nSuggested Cause: Check credentials (AA_USERNAME/AA_PASSWORD) or Control Room identity provider status.`
+        `❌ Authentication Failed\nSuggested Cause: Check credentials (ensure API Key is used if SSO is enabled) or Control Room identity provider status.`
       );
     }
 
